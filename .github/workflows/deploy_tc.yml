@@ -1,31 +1,56 @@
 name: Deploy to GitHub Pages
 
 on:
+  # 监听 main 分支的 push 事件
   push:
     branches:
-      - main  # 代码推送到 main 分支时触发部署
+      - main
+
+  # 允许手动触发部署
+  workflow_dispatch:
+
+# 设置权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 设置并发限制，确保每次只运行一个部署
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: Checkout 代码
         uses: actions/checkout@v4
-
+      
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # 匹配项目所需 Node 版本
-          cache: 'npm'  # 缓存 npm 依赖加速构建
-
+          node-version: 18
+          cache: 'npm'
+      
       - name: 安装依赖
         run: npm install
-
+      
       - name: 构建项目
-        run: npm run build  # 执行构建命令，生成 dist 文件夹
-
-      - name: 部署到 GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        run: npm run build
+      
+      - name: 上传构建结果
+        uses: actions/upload-pages-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # 自动获取的 GitHub 令牌
-          publish_dir: ./dist  # 要部署的文件夹，即构建生成的 dist
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2    
