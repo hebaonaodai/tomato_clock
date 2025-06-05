@@ -65,6 +65,23 @@ tomato-clock/
 │   └── main.js            # 入口文件
 └── README.md              # 项目说明
 ```
+## dist文件结构
+
+```
+dist/
+├── assets/          # 构建后的静态资源
+│   ├── Home-xxx.js
+│   ├── Home-xxx.css
+│   ├── Settings-xxx.js
+│   ├── Settings-xxx.css
+│   ├── index-xxx.css
+│   ├── index-xxx.js
+│   └── timer-xxx.js
+├── index.html       # 入口HTML文件
+├── sounds/          # 音频资源
+│   └── mixkit-interface-hint-notification-911.wav
+└── vite.svg         # 图标文件
+```
 
 ## 开发计划
 
