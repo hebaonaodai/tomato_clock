@@ -1,56 +1,28 @@
 name: Deploy to GitHub Pages
 
 on:
-  # 监听 main 分支的 push 事件
   push:
-    branches:
-      - main
-
-  # 允许手动触发部署
-  workflow_dispatch:
-
-# 设置权限
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# 设置并发限制，确保每次只运行一个部署
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
+    branches: [ main ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout 代码
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: 18
-          cache: 'npm'
-      
-      - name: 安装依赖
+          
+      - name: Install dependencies
         run: npm install
-      
-      - name: 构建项目
+        
+      - name: Build project
         run: npm run build
-      
-      - name: 上传构建结果
-        uses: actions/upload-pages-artifact@v2
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: ./dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: 部署到 GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2    
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
